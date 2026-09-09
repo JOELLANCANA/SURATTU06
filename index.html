@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>AR-RANIRY - Persuratan UIN Ar-Raniry Banda Aceh</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QR Code Generator Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-brand-cream text-slate-800 font-sans flex flex-col min-h-full selection:bg-brand-accent selection:text-brand-dark">
+
+  <!-- HEADER UTAMA -->
+  <header class="sticky top-0 z-40 bg-brand-primary border-b border-brand-accent/30 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo Branding -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+        <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-brand-accent to-yellow-200 p-0.5 shadow-lg">
+          <div class="w-full h-full rounded-full border border-brand-accent/50 overflow-hidden bg-[#0b8f4d]">
+            <svg viewBox="0 0 160 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg" aria-label="UIN Ar-Raniry Logo" role="img">
+              <g stroke="#0a2d1b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 116C34 97 44 82 53 58C61 72 73 85 87 94C72 102 58 110 46 122L20 116Z" fill="#d9b92f"/>
+                <path d="M140 116C126 97 116 82 107 58C99 72 87 85 73 94C88 102 102 110 114 122L140 116Z" fill="#d9b92f"/>
+                <path d="M80 36L80 88" fill="none"/>
+                <path d="M72 36H88" fill="none"/>
+                <path d="M67 50H93" fill="none"/>
+                <path d="M80 88L80 118" fill="none"/>
+                <path d="M80 88L80 118" fill="none"/>
+                <path d="M42 82C55 67 65 60 80 60C95 60 105 67 118 82" fill="none"/>
+                <path d="M66 63L80 48L94 63" fill="none"/>
+                <path d="M50 122H110" fill="none"/>
+                <path d="M54 122L47 132H113L106 122" fill="#f4f4f4"/>
+                <path d="M68 122L76 132H84L92 122" fill="#f4f4f4"/>
+                <path d="M55 90H105V102H55Z" fill="#f3f3f3"/>
+                <path d="M74 89L80 78L86 89" fill="#f3f3f3"/>
+                <path d="M64 112C68 95 73 88 80 88C87 88 92 95 96 112H64Z" fill="#111827"/>
+                <path d="M70 112H90" fill="none"/>
+                <path d="M80 88V134" fill="none"/>
+                <path d="M32 120C42 104 52 95 62 90C58 101 53 110 47 118L32 120Z" fill="#e6bf2d"/>
+                <path d="M128 120C118 104 108 95 98 90C102 101 107 110 113 118L128 120Z" fill="#e6bf2d"/>
+              </g>
+              <g font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" text-anchor="middle" fill="#f1d03a">
+                <text x="80" y="78" font-size="50">U</text>
+                <text x="80" y="112" font-size="34">N</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline space-x-2">
+            <span id="app-title-header" class="text-xl font-extrabold tracking-wider text-white">AR-RANIRY</span>
+            <span class="font-arabic text-brand-accent text-sm font-semibold hidden sm:inline">الرَّانِيْرِي</span>
+          </div>
+          <p id="app-subtitle-header" class="text-[10px] text-brand-goldLight tracking-widest uppercase font-medium">UIN Ar-Raniry Banda Aceh</p>
+        </div>
+      </div>
+
+      <!-- Navigasi Desktop -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <button onclick="navigateTo('home')" class="text-white hover:text-brand-accent transition">Beranda</button>
+        <button onclick="navigateTo('arsip-publik')" class="text-slate-200 hover:text-brand-accent transition">Arsip Bulanan</button>
+        <button onclick="scrollToSection('tracking')" class="text-slate-200 hover:text-brand-accent transition">Cari Surat</button>
+      </nav>
+
+      <!-- Status Login & Tombol Admin -->
+      <div class="hidden md:flex items-center space-x-3">
+        <div id="admin-badge" class="hidden items-center px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-semibold">
+          <i class="fa-solid fa-user-check mr-1.5"></i> Admin Mode
+        </div>
+        <button id="btn-admin-access" onclick="toggleAdminModal()" class="px-5 py-2.5 rounded-full bg-gradient-to-r from-brand-accent to-amber-500 text-brand-dark font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 active:scale-95 transition">
+          <i class="fa-solid fa-user-shield mr-2"></i> Akses Admin
+        </button>
+        <button id="btn-logout" onclick="handleAdminLogout()" class="hidden px-4 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 transition">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+        </button>
+      </div>
+
+      <!-- Tombol Admin Mobile -->
+      <button onclick="toggleAdminModal()" class="md:hidden p-2 rounded-lg bg-brand-dark/60 border border-brand-accent/40 text-brand-accent">
+        <i class="fa-solid fa-user-shield text-lg"></i>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- DYNAMIC VIEW CONTAINER -->
+  <main class="flex-grow">
+
+    <!-- 1. HALAMAN UTAMA / LANDING PAGE (HOME) -->
+    <section id="page-home" class="app-page">
+      <!-- HERO SECTION -->
+      <div id="hero-banner" class="relative bg-islamic-pattern text-white py-14 lg:py-20 overflow-hidden">
+        <div class="max-w-5xl mx-auto px-4 text-center relative z-10">
+          
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-dark/80 border border-brand-accent/40 text-brand-accent text-sm font-arabic mb-6">
+            <span id="hero-badge-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-white mb-4 leading-tight">
+            <span id="hero-title-primary">Sistem Informasi Persuratan</span> <br>
+            <span id="hero-title-highlight" class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent via-yellow-200 to-amber-400">
+              UIN Ar-Raniry Banda Aceh
+            </span>
+          </h1>
+          
+          <p id="hero-subtitle" class="text-slate-300 text-xs sm:text-sm max-w-2xl mx-auto mb-8 font-light">
+            Portal resmi tata kelola arsip persuratan digital, pencarian dokumen, dan penerbitan bukti tanda terima terverifikasi.
+          </p>
+
+          <!-- Search Card / Tracking -->
+          <div id="tracking" class="max-w-2xl mx-auto glass-card p-5 rounded-2xl shadow-2xl text-left border border-brand-accent/30">
+            <label class="block text-xs font-bold text-brand-primary uppercase tracking-wider mb-2">
+              <i class="fa-solid fa-magnifying-glass text-brand-accent mr-1"></i> Cari & Lacak Surat Masuk / Keluar
+            </label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input type="text" id="public-search-input" placeholder="Ketik Nomor Surat, Perihal, atau Pengirim..." 
+                class="flex-1 px-4 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-accent">
+              <button onclick="executePublicSearch()" class="px-6 py-3 rounded-xl bg-brand-primary hover:bg-brand-medium text-white font-semibold text-sm shadow-md active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-search"></i>
+                <span>Cari Dokumen</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PUBLIC ARCHIVE QUICK TABLE -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-brand-dark">Arsip Surat Bulanan (Publik)</h2>
+            <p class="text-xs text-slate-500">Daftar surat terbaru dalam 30 hari terakhir dan arsip bulanan lengkap.</p>
+          </div>
+          <div class="flex gap-2">
+            <select id="public-filter-month" onchange="renderPublicMonthArchive()" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-accent">
+              <option value="ALL">30 Hari Terakhir</option>
+            </select>
+            <select id="public-filter-type" onchange="renderPublicMonthArchive()" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-accent">
+              <option value="ALL">Semua Jenis Surat</option>
+              <option value="Masuk">Surat Masuk</option>
+              <option value="Keluar">Surat Keluar</option>
+            </select>
+            <button type="button" id="public-archive-toggle" onclick="togglePublicArchive()" class="px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-bold text-brand-primary hover:bg-slate-50 transition">
+              <i class="fa-solid fa-chevron-down mr-1"></i> Tampilkan
+            </button>
+          </div>
+        </div>
+
+        <div id="public-archive-panel" class="hidden">
+          <div class="grid gap-6 xl:grid-cols-2">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+              <div class="bg-gradient-to-r from-emerald-700 to-emerald-600 px-4 py-3 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-file-import"></i>
+                  <span class="text-sm font-bold">Surat Masuk</span>
+                </div>
+                <span id="public-count-masuk" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold"></span>
+              </div>
+              <div id="public-table-body-masuk" class="p-4 space-y-4"></div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden">
+              <div class="bg-gradient-to-r from-amber-600 to-amber-500 px-4 py-3 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-file-export"></i>
+                  <span class="text-sm font-bold">Surat Keluar</span>
+                </div>
+                <span id="public-count-keluar" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold"></span>
+              </div>
+              <div id="public-table-body-keluar" class="p-4 space-y-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TAMPILAN ADMIN (SIDEBAR + CONTENT SIDE-BY-SIDE) -->
+    <section id="page-admin" class="app-page hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col lg:flex-row gap-6">
+        
+        <!-- SIDEBAR MENU ADMIN (Sesuai Gambar User) -->
+        <aside class="w-full lg:w-64 bg-[#022c20] text-white rounded-2xl p-5 shadow-xl flex-shrink-0 h-fit">
+          
+          <div class="mb-6 pb-4 border-b border-white/10 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-brand-accent text-brand-dark flex items-center justify-center font-bold">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+              <div class="font-bold text-sm">Administrator</div>
+              <div class="text-[10px] text-brand-goldLight">Akses Penuh Persuratan</div>
+            </div>
+          </div>
+
+          <!-- MENU UTAMA -->
+          <div class="text-[11px] font-bold tracking-wider uppercase text-emerald-300 mb-3">MENU UTAMA</div>
+          <nav class="space-y-1 mb-6 text-xs">
+            <button onclick="showAdminSection('dashboard')" id="nav-dashboard" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium bg-brand-accent text-brand-dark font-bold shadow-md">
+              <i class="fa-solid fa-border-all text-base"></i> Dashboard
+            </button>
+            <button onclick="showAdminSection('input-masuk')" id="nav-input-masuk" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-file-import text-base"></i> Input Surat Masuk
+            </button>
+            <button onclick="showAdminSection('input-keluar')" id="nav-input-keluar" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-file-export text-base"></i> Input Surat Keluar
+            </button>
+            <button onclick="showAdminSection('distribusi')" id="nav-distribusi" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-code-fork text-base"></i> Distribusi Surat
+            </button>
+            <button onclick="showAdminSection('arsip')" id="nav-arsip" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-box-archive text-base"></i> Arsip Surat
+            </button>
+            <button onclick="showAdminSection('rekapitulasi')" id="nav-rekapitulasi" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-chart-simple text-base"></i> Rekapitulasi
+            </button>
+            <button onclick="showAdminSection('e-distribusi')" id="nav-e-distribusi" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-share-nodes text-base"></i> e-Distribusi Surat
+            </button>
+          </nav>
+
+          <!-- PENGATURAN -->
+          <div class="text-[11px] font-bold tracking-wider uppercase text-emerald-300 mb-3">PENGATURAN</div>
+          <nav class="space-y-1 text-xs">
+            <button onclick="showAdminSection('panel-admin')" id="nav-panel-admin" class="admin-nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-slate-200 hover:bg-white/10 transition">
+              <i class="fa-solid fa-sliders text-base"></i> Panel Admin
+            </button>
+          </nav>
+
+        </aside>
+
+        <!-- AREA KONTEN ADMIN -->
+        <div class="flex-1 min-w-0">
+          
+          <!-- SUB-VIEW 1: DASHBOARD / LISTING SURAT MASUK & KELUAR -->
+          <div id="admin-sub-dashboard" class="admin-sub-page space-y-6">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <div>
+                <h2 class="text-lg font-bold text-brand-dark">Daftar Persuratan Utama</h2>
+                <p class="text-xs text-slate-500">Kelola dan pantau seluruh catatan surat masuk dan keluar.</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="purgeDummyData()" class="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-red-200">
+                  <i class="fa-solid fa-trash-can"></i> Bersihkan Data Dummy
+                </button>
+              </div>
+            </div>
+
+            <!-- TABEL LISTING DENGAN HEADER HIJAU TUA -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="p-4 bg-[#033f2e] text-white flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="font-bold text-sm flex items-center gap-2">
+                  <i class="fa-solid fa-list-check text-brand-accent"></i>
+                  <span>Rekapitulasi Surat Masuk & Keluar</span>
+                </div>
+                <div class="flex gap-2">
+                  <select id="admin-filter-type" onchange="renderAdminTables()" class="px-3 py-1.5 bg-brand-dark text-white rounded-lg text-xs font-semibold border border-brand-accent/30 focus:outline-none">
+                    <option value="ALL">Semua Surat</option>
+                    <option value="Masuk">Surat Masuk</option>
+                    <option value="Keluar">Surat Keluar</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid gap-5 p-4 xl:grid-cols-2">
+                <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-emerald-600 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm font-bold">
+                      <i class="fa-solid fa-file-import"></i>
+                      <span>Surat Masuk</span>
+                    </div>
+                    <span id="admin-count-masuk" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold"></span>
+                  </div>
+                  <div id="admin-table-body-masuk" class="p-3 space-y-3"></div>
+                </div>
+
+                <div class="rounded-2xl border border-amber-200 bg-amber-50/60 overflow-hidden">
+                  <div class="px-4 py-3 bg-amber-500 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm font-bold">
+                      <i class="fa-solid fa-file-export"></i>
+                      <span>Surat Keluar</span>
+                    </div>
+                    <span id="admin-count-keluar" class="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold"></span>
+                  </div>
+                  <div id="admin-table-body-keluar" class="p-3 space-y-3"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SUB-VIEW 2: FORM INPUT SURAT MASUK (Sesuai Gambar User) -->
+          <div id="admin-sub-input-masuk" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+            <h2 class="text-lg font-bold text-brand-dark border-b border-slate-100 pb-3">Form Input Surat Masuk</h2>
+
+            <form onsubmit="saveSuratMasuk(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Agenda</label>
+                  <input type="text" id="sm-agenda" placeholder="Contoh: AGM/001/2026" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Surat *</label>
+                  <input type="text" id="sm-nosurat" required placeholder="Nomor surat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Surat *</label>
+                  <input type="date" id="sm-tglsurat" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Terima</label>
+                  <input type="date" id="sm-tglterima" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Pengirim *</label>
+                  <input type="text" id="sm-pengirim" list="pengirim-list" required placeholder="Pilih atau ketik nama pengirim" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                  <datalist id="pengirim-list"></datalist>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Ditujukan Kepada</label>
+                  <input type="text" id="sm-tujuan" list="tujuan-list" placeholder="Pilih atau ketik pejabat / unit tujuan" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                  <datalist id="tujuan-list"></datalist>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Klasifikasi</label>
+                  <select id="sm-klasifikasi" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                    <option value="Biasa">Biasa</option>
+                    <option value="Penting">Penting</option>
+                    <option value="Rahasia">Rahasia</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Sifat</label>
+                  <select id="sm-sifat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                    <option value="Biasa">Biasa</option>
+                    <option value="Segera">Segera</option>
+                    <option value="Sangat Segera">Sangat Segera</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Perihal *</label>
+                <input type="text" id="sm-perihal" required placeholder="Perihal surat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Disposisi</label>
+                <textarea id="sm-disposisi" rows="2" placeholder="Catatan disposisi..." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan</label>
+                <textarea id="sm-keterangan" rows="2" placeholder="Keterangan tambahan..." class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Upload File Surat (PDF)</label>
+                <input type="file" id="sm-file" accept="application/pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-primary file:text-white hover:file:bg-brand-medium">
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="px-6 py-2.5 bg-[#033f2e] hover:bg-brand-medium text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Surat Masuk
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- SUB-VIEW 3: FORM INPUT SURAT KELUAR (Sesuai Gambar User) -->
+          <div id="admin-sub-input-keluar" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+            <h2 class="text-lg font-bold text-brand-dark border-b border-slate-100 pb-3">Form Input Surat Keluar</h2>
+
+            <form onsubmit="saveSuratKeluar(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Surat *</label>
+                  <input type="text" id="sk-nosurat" required placeholder="Nomor surat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Surat *</label>
+                  <input type="date" id="sk-tglsurat" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Tujuan *</label>
+                  <input type="text" id="sk-tujuan" list="tujuan-list" required placeholder="Pilih atau ketik tujuan surat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Penandatangan</label>
+                  <input type="text" id="sk-penandatangan" list="penandatangan-list" placeholder="Pilih atau ketik nama penandatangan" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                  <datalist id="penandatangan-list"></datalist>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Klasifikasi</label>
+                  <select id="sk-klasifikasi" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                    <option value="Biasa">Biasa</option>
+                    <option value="Penting">Penting</option>
+                    <option value="Rahasia">Rahasia</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Sifat</label>
+                  <select id="sk-sifat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+                    <option value="Biasa">Biasa</option>
+                    <option value="Segera">Segera</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Perihal *</label>
+                <input type="text" id="sk-perihal" required placeholder="Perihal surat" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Upload File Surat (PDF)</label>
+                <input type="file" id="sk-file" accept="application/pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-primary file:text-white hover:file:bg-brand-medium">
+              </div>
+
+              <div class="pt-2">
+                <button type="submit" class="px-6 py-2.5 bg-[#033f2e] hover:bg-brand-medium text-white rounded-xl text-xs font-bold shadow-md transition flex items-center gap-2">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Surat Keluar
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- SUB-VIEW 4: PANEL ADMIN (Pengaturan Branding) -->
+          <div id="admin-sub-panel-admin" class="admin-sub-page hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+            <h2 class="text-lg font-bold text-brand-dark border-b border-slate-100 pb-3">Panel Pengaturan Aplikasi</h2>
+
+            <form onsubmit="saveSettings(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Judul Utama Header</label>
+                <input type="text" id="set-header-title" value="AR-RANIRY" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Sub-Judul Header / Instansi</label>
+                <input type="text" id="set-header-sub" value="UIN Ar-Raniry Banda Aceh" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Badge Hero</label>
+                <input type="text" id="set-hero-badge" value="بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Judul Hero Utama</label>
+                <input type="text" id="set-hero-title-primary" value="Sistem Informasi Persuratan" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Judul Hero Highlight</label>
+                <input type="text" id="set-hero-title-highlight" value="UIN Ar-Raniry Banda Aceh" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Deskripsi Hero</label>
+                <textarea id="set-hero-subtitle" rows="3" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">Portal resmi tata kelola arsip persuratan digital, pencarian dokumen, dan penerbitan bukti tanda terima terverifikasi.</textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">URL Gambar Latar Belakang Hero</label>
+                <input type="url" id="set-hero-background" placeholder="https://example.com/background.jpg" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Master Pilihan Pengirim (Pisahkan dengan koma)</label>
+                <input type="text" id="set-master-pengirim" value="Fakultas Tarbiyah, Fakultas Syariah, Rektorat, PDDikti" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs">
+              </div>
+              <div>
+                <button type="submit" class="px-6 py-2.5 bg-brand-accent hover:bg-amber-500 text-brand-dark rounded-xl text-xs font-bold shadow-md transition">
+                  <i class="fa-solid fa-check mr-1"></i> Simpan Pengaturan
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: LOGIN ADMIN -->
+  <div id="adminModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-brand-accent/30 animate-in fade-in zoom-in duration-200">
+      
+      <div class="bg-brand-primary p-5 text-white text-center relative">
+        <button onclick="toggleAdminModal()" class="absolute right-4 top-4 text-slate-300 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+        <div class="w-12 h-12 mx-auto rounded-full bg-brand-accent/20 border border-brand-accent/50 flex items-center justify-center text-brand-accent text-2xl mb-2">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h3 class="font-bold text-base">Autentikasi Admin</h3>
+        <p class="text-[11px] text-brand-goldLight">Masukan kata sandi untuk mengelola persuratan</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Username Admin</label>
+          <input type="text" id="login-user" value="admin" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi (Password)</label>
+          <input type="password" id="login-pass" value="admin123" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-accent">
+        </div>
+        
+        <button type="submit" class="w-full py-3 bg-brand-primary hover:bg-brand-medium text-white rounded-xl text-xs font-bold shadow-lg transition">
+          <i class="fa-solid fa-key mr-1.5"></i> Masuk Mode Admin
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: CETAK BUKTI TANDA TERIMA 2 SISI (A4 PRINT OPTIMIZED) -->
+  <div id="receiptModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden my-8">
+      
+      <div class="bg-slate-800 text-white p-4 flex justify-between items-center no-print">
+        <span class="font-bold text-xs"><i class="fa-solid fa-print mr-2 text-brand-accent"></i> Cetak Bukti Tanda Terima (2 Sisi)</span>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3 py-1.5 bg-brand-accent text-brand-dark rounded-lg text-xs font-bold hover:brightness-110">
+            <i class="fa-solid fa-print mr-1"></i> Cetak Sekarang
+          </button>
+          <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white px-2">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- AREA CETAK 2 SISI -->
+      <div id="print-receipt-area" class="p-8 space-y-8 bg-white text-slate-800 text-xs">
+        
+        <!-- LEMBAR 1: ARSIP -->
+        <div class="border-2 border-slate-800 p-5 rounded-lg relative space-y-3">
+          <div class="text-center border-b pb-3 border-slate-300">
+            <h4 class="font-bold text-sm tracking-wide">UIN AR-RANIRY BANDA ACEH</h4>
+            <p class="text-[10px] text-slate-500">TANDA TERIMA PERSURATAN (LEMBAR 1: ARSIP TU)</p>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]" id="receipt-details-1">
+            <!-- Loaded JS -->
+          </div>
+          <div class="flex justify-between items-end pt-3">
+            <div id="qrcode-1" class="p-1 border bg-white"></div>
+            <div class="text-center text-[10px]">
+              <p>Banda Aceh, <span class="receipt-date">08 Sep 2026</span></p>
+              <p class="mt-8 font-bold">Petugas Penerima</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t-2 border-dashed border-slate-400 my-4 text-center text-[10px] text-slate-400 no-print">
+          Gunting di sini untuk potongan tanda terima pengirim
+        </div>
+
+        <!-- LEMBAR 2: PENGIRIM -->
+        <div class="border-2 border-slate-800 p-5 rounded-lg relative space-y-3">
+          <div class="text-center border-b pb-3 border-slate-300">
+            <h4 class="font-bold text-sm tracking-wide">UIN AR-RANIRY BANDA ACEH</h4>
+            <p class="text-[10px] text-slate-500">TANDA TERIMA PERSURATAN (LEMBAR 2: UNTUK PENGIRIM)</p>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]" id="receipt-details-2">
+            <!-- Loaded JS -->
+          </div>
+          <div class="flex justify-between items-end pt-3">
+            <div id="qrcode-2" class="p-1 border bg-white"></div>
+            <div class="text-center text-[10px]">
+              <p>Banda Aceh, <span class="receipt-date">08 Sep 2026</span></p>
+              <p class="mt-8 font-bold">Petugas Penerima</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 pb-safe shadow-2xl">
+    <div class="grid grid-cols-4 h-16 text-[10px] font-medium">
+      <button onclick="navigateTo('home')" class="flex flex-col items-center justify-center text-brand-primary active:scale-95">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span class="mt-1">Beranda</span>
+      </button>
+      <button onclick="scrollToSection('tracking')" class="flex flex-col items-center justify-center text-slate-500 active:scale-95">
+        <i class="fa-solid fa-magnifying-glass text-lg"></i>
+        <span class="mt-1">Cari</span>
+      </button>
+      <button onclick="navigateTo('arsip-publik')" class="flex flex-col items-center justify-center text-slate-500 active:scale-95">
+        <i class="fa-solid fa-folder-open text-lg"></i>
+        <span class="mt-1">Arsip</span>
+      </button>
+      <button onclick="toggleAdminModal()" class="flex flex-col items-center justify-center text-brand-accent font-bold active:scale-95">
+        <i class="fa-solid fa-user-shield text-lg"></i>
+        <span class="mt-1">Admin</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCRIPT APLIKASI UTAMA -->
+  <script>
+    const fallbackData = [
+      { id: '1', tipe: 'Masuk', agenda: '1764', noSurat: 'B-2031/UN.08/TU.FDK/KS.01.3/09/2026', tglSurat: '2026-09-08', pengirim: 'FAKULTAS DAKWAH DAN KOMUNIKASI', perihal: 'MOHON PERBAIKAN DAN PERAWATAN ALAT KANTOR', klasifikasi: 'Biasa', fileUrl: '#' },
+      { id: '2', tipe: 'Masuk', agenda: '1762', noSurat: '2574/UN.08/FAH-TU/KS.01.7/09/2026', tglSurat: '2026-09-07', pengirim: 'FAKULTAS ADAB DAN HUMANIORA', perihal: 'PEMELIHARAAN BARANG ELEKTRONIK', klasifikasi: 'Biasa', fileUrl: '#' },
+      { id: '3', tipe: 'Keluar', agenda: '001', noSurat: 'B-101/UN.08/R/2026', tglSurat: '2026-09-02', pengirim: 'WAKIL REKTOR III', perihal: 'Surat Rekomendasi Beasiswa', klasifikasi: 'Biasa', fileUrl: '#' }
+    ];
+
+    let isAdmin = false;
+    let appData = [];
+    let appSettings = {
+      headerTitle: 'AR-RANIRY',
+      headerSubtitle: 'UIN Ar-Raniry Banda Aceh',
+      heroBadge: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+      heroTitlePrimary: 'Sistem Informasi Persuratan',
+      heroTitleHighlight: 'UIN Ar-Raniry Banda Aceh',
+      heroSubtitle: 'Portal resmi tata kelola arsip persuratan digital, pencarian dokumen, dan penerbitan bukti tanda terima terverifikasi.',
+      heroBackground: '',
+      masterPengirim: 'Fakultas Tarbiyah, Fakultas Syariah, Rektorat, PDDikti'
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateMonths();
+      loadAppData();
+    });
+
+    function applySettingsToUI() {
+      const title = document.getElementById('app-title-header');
+      const subtitle = document.getElementById('app-subtitle-header');
+      const titleField = document.getElementById('set-header-title');
+      const subtitleField = document.getElementById('set-header-sub');
+      const pengirimField = document.getElementById('set-master-pengirim');
+      const heroBadge = document.getElementById('hero-badge-text');
+      const heroTitlePrimary = document.getElementById('hero-title-primary');
+      const heroTitleHighlight = document.getElementById('hero-title-highlight');
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      const heroBanner = document.getElementById('hero-banner');
+      const heroBadgeField = document.getElementById('set-hero-badge');
+      const heroTitlePrimaryField = document.getElementById('set-hero-title-primary');
+      const heroTitleHighlightField = document.getElementById('set-hero-title-highlight');
+      const heroSubtitleField = document.getElementById('set-hero-subtitle');
+      const heroBackgroundField = document.getElementById('set-hero-background');
+
+      if (title) title.textContent = appSettings.headerTitle || 'AR-RANIRY';
+      if (subtitle) subtitle.textContent = appSettings.headerSubtitle || 'UIN Ar-Raniry Banda Aceh';
+      if (titleField) titleField.value = appSettings.headerTitle || 'AR-RANIRY';
+      if (subtitleField) subtitleField.value = appSettings.headerSubtitle || 'UIN Ar-Raniry Banda Aceh';
+      if (pengirimField) pengirimField.value = appSettings.masterPengirim || 'Fakultas Tarbiyah, Fakultas Syariah, Rektorat, PDDikti';
+      if (heroBadge) heroBadge.textContent = appSettings.heroBadge || 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+      if (heroTitlePrimary) heroTitlePrimary.textContent = appSettings.heroTitlePrimary || 'Sistem Informasi Persuratan';
+      if (heroTitleHighlight) heroTitleHighlight.textContent = appSettings.heroTitleHighlight || 'UIN Ar-Raniry Banda Aceh';
+      if (heroSubtitle) heroSubtitle.textContent = appSettings.heroSubtitle || 'Portal resmi tata kelola arsip persuratan digital, pencarian dokumen, dan penerbitan bukti tanda terima terverifikasi.';
+      if (heroBadgeField) heroBadgeField.value = appSettings.heroBadge || 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+      if (heroTitlePrimaryField) heroTitlePrimaryField.value = appSettings.heroTitlePrimary || 'Sistem Informasi Persuratan';
+      if (heroTitleHighlightField) heroTitleHighlightField.value = appSettings.heroTitleHighlight || 'UIN Ar-Raniry Banda Aceh';
+      if (heroSubtitleField) heroSubtitleField.value = appSettings.heroSubtitle || 'Portal resmi tata kelola arsip persuratan digital, pencarian dokumen, dan penerbitan bukti tanda terima terverifikasi.';
+      if (heroBackgroundField) heroBackgroundField.value = appSettings.heroBackground || '';
+
+      if (heroBanner) {
+        const rawBg = (appSettings.heroBackground || '').trim();
+        if (rawBg) {
+          heroBanner.style.backgroundImage = `linear-gradient(rgba(2,44,32,0.55), rgba(2,44,32,0.72)), url("${rawBg}")`;
+          heroBanner.style.backgroundSize = 'cover';
+          heroBanner.style.backgroundPosition = 'center';
+          heroBanner.style.backgroundRepeat = 'no-repeat';
+          heroBanner.classList.remove('bg-islamic-pattern');
+        } else {
+          heroBanner.style.backgroundImage = '';
+          heroBanner.style.backgroundSize = '';
+          heroBanner.style.backgroundPosition = '';
+          heroBanner.style.backgroundRepeat = '';
+          heroBanner.classList.add('bg-islamic-pattern');
+        }
+      }
+    }
+
+    function updateDatalistOptions() {
+      const list = document.getElementById('pengirim-list');
+      if (!list) return;
+
+      const options = (appSettings.masterPengirim || '')
+        .split(',')
+        .map(value => value.trim())
+        .filter(Boolean);
+
+      list.innerHTML = '';
+      options.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        list.appendChild(option);
+      });
+    }
+
+    function getCurrentData() {
+      return Array.isArray(appData) && appData.length ? appData : fallbackData;
+    }
+
+    function loadAppData() {
+      const useServer = typeof google !== 'undefined' && google.script && google.script.run;
+
+      if (!useServer) {
+        appData = fallbackData.slice();
+        applySettingsToUI();
+        updateDatalistOptions();
+        renderPublicMonthArchive();
+        renderAdminTables();
+        return;
+      }
+
+      Promise.all([
+        new Promise((resolve, reject) => {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getAllDocuments();
+        }),
+        new Promise((resolve, reject) => {
+          google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getSettings();
+        })
+      ]).then(([documents, settings]) => {
+        appData = Array.isArray(documents) && documents.length ? documents : fallbackData.slice();
+        appSettings = { ...appSettings, ...(settings || {}) };
+        applySettingsToUI();
+        updateDatalistOptions();
+        renderPublicMonthArchive();
+        renderAdminTables();
+      }).catch(() => {
+        appData = fallbackData.slice();
+        applySettingsToUI();
+        updateDatalistOptions();
+        renderPublicMonthArchive();
+        renderAdminTables();
+      });
+    }
+
+    function navigateTo(page) {
+      document.querySelectorAll('.app-page').forEach(el => el.classList.add('hidden'));
+
+      if (page === 'admin' || page === 'arsip-admin' || page === 'dashboard') {
+        if (!isAdmin) {
+          toggleAdminModal();
+          return;
+        }
+        document.getElementById('page-admin').classList.remove('hidden');
+        showAdminSection('dashboard');
+      } else {
+        document.getElementById('page-home').classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleAdminModal() {
+      const modal = document.getElementById('adminModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-user').value;
+      const pass = document.getElementById('login-pass').value;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler((result) => {
+          if (result && result.ok) {
+            isAdmin = true;
+            document.getElementById('admin-badge').classList.remove('hidden');
+            document.getElementById('admin-badge').classList.add('flex');
+            document.getElementById('btn-admin-access').classList.add('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+            toggleAdminModal();
+            navigateTo('admin');
+            renderAdminTables();
+          } else {
+            alert('Username atau Kata Sandi Salah! Silakan coba lagi.');
+          }
+        }).loginAdmin(user, pass);
+        return;
+      }
+
+      if (user === 'admin' && pass === 'admin123') {
+        isAdmin = true;
+        document.getElementById('admin-badge').classList.remove('hidden');
+        document.getElementById('admin-badge').classList.add('flex');
+        document.getElementById('btn-admin-access').classList.add('hidden');
+        document.getElementById('btn-logout').classList.remove('hidden');
+
+        toggleAdminModal();
+        navigateTo('admin');
+        renderAdminTables();
+      } else {
+        alert('Username atau Kata Sandi Salah! Silakan coba lagi.');
+      }
+    }
+
+    function handleAdminLogout() {
+      isAdmin = false;
+      document.getElementById('admin-badge').classList.add('hidden');
+      document.getElementById('btn-admin-access').classList.remove('hidden');
+      document.getElementById('btn-logout').classList.add('hidden');
+      navigateTo('home');
+    }
+
+    function showAdminSection(sectionId) {
+      document.querySelectorAll('.admin-sub-page').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.admin-nav-item').forEach(el => {
+        el.classList.remove('bg-brand-accent', 'text-brand-dark', 'font-bold');
+        el.classList.add('text-slate-200');
+      });
+
+      const activeNav = document.getElementById(`nav-${sectionId}`);
+      if (activeNav) {
+        activeNav.classList.add('bg-brand-accent', 'text-brand-dark', 'font-bold');
+        activeNav.classList.remove('text-slate-200');
+      }
+
+      const targetSub = document.getElementById(`admin-sub-${sectionId}`);
+      if (targetSub) {
+        targetSub.classList.remove('hidden');
+      }
+
+      if (sectionId === 'dashboard' || sectionId === 'arsip') {
+        renderAdminTables();
+      }
+    }
+
+    function monthNameFromDate(dateValue) {
+      if (!dateValue) return 'Tanpa Tanggal';
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return 'Tanpa Tanggal';
+      return new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('id-ID', {
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    function monthKeyFromDate(dateValue) {
+      if (!dateValue) return null;
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return null;
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function isInLast30Days(dateValue) {
+      if (!dateValue) return false;
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return false;
+      const today = new Date();
+      const cutoff = new Date();
+      cutoff.setDate(today.getDate() - 30);
+      return date >= cutoff && date <= today;
+    }
+
+    function togglePublicArchive() {
+      const panel = document.getElementById('public-archive-panel');
+      const button = document.getElementById('public-archive-toggle');
+      const isHidden = panel.classList.toggle('hidden');
+      button.innerHTML = isHidden
+        ? '<i class="fa-solid fa-chevron-down mr-1"></i> Tampilkan'
+        : '<i class="fa-solid fa-chevron-up mr-1"></i> Sembunyikan';
+      if (!isHidden) {
+        renderPublicMonthArchive();
+      }
+    }
+
+    function renderArchiveSection(containerId, type, data, monthFilter) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      let filtered = data.filter(item => item.tipe === type && (!monthFilter || monthFilter === 'ALL' || monthFilter === '30DAYS' || item.tglSurat && monthKeyFromDate(item.tglSurat) === monthFilter));
+      if (monthFilter === '30DAYS') {
+        filtered = filtered.filter(item => isInLast30Days(item.tglSurat));
+      }
+      filtered = filtered.sort((a, b) => new Date(b.tglSurat) - new Date(a.tglSurat));
+
+      const grouped = {};
+      filtered.forEach(item => {
+        const key = monthKeyFromDate(item.tglSurat);
+        if (!key) return;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(item);
+      });
+
+      const entries = Object.entries(grouped).sort((a, b) => b[0].localeCompare(a[0]));
+
+      if (!entries.length) {
+        container.innerHTML = `
+          <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-xs text-slate-500">
+            Tidak ada data ${type.toLowerCase()} untuk filter ini.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = entries.map(([monthKey, items]) => `
+        <div class="rounded-xl border border-slate-200 bg-slate-50/80 overflow-hidden">
+          <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wide text-slate-600">
+            ${monthNameFromDate(`${monthKey}-01`)}
+          </div>
+          <div class="divide-y divide-slate-200">
+            ${items.map((item, idx) => `
+              <div class="p-3 hover:bg-white transition">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-[10px] font-bold ${type === 'Masuk' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                      ${idx + 1}
+                    </span>
+                    <div class="min-w-0">
+                      <div class="text-[10px] font-bold uppercase tracking-wide text-slate-500">${item.tglSurat || '-'}</div>
+                      <div class="text-sm font-bold text-brand-dark truncate">${item.noSurat || '-'}</div>
+                    </div>
+                  </div>
+                  <button onclick="openReceiptModal('${item.id}')" class="px-2 py-1 bg-brand-goldLight text-brand-dark rounded-md text-[10px] font-bold hover:bg-brand-accent transition">
+                    <i class="fa-solid fa-receipt mr-1"></i> Resi TT
+                  </button>
+                </div>
+                <div class="grid gap-2 text-[11px] text-slate-600">
+                  <div><span class="font-semibold text-slate-700">${type === 'Masuk' ? 'Pengirim' : 'Tujuan'}:</span> ${item.pengirim || '-'}</div>
+                  <div><span class="font-semibold text-slate-700">Perihal:</span> ${item.perihal || '-'}</div>
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${type === 'Masuk' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                      ${item.klasifikasi || 'Biasa'}
+                    </span>
+                    <a href="${item.fileUrl || '#'}" target="_blank" class="text-red-600 hover:text-red-700 font-semibold">
+                      <i class="fa-solid fa-file-pdf mr-1"></i> PDF
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderPublicMonthArchive() {
+      const data = getCurrentData();
+      const filterMonth = document.getElementById('public-filter-month').value;
+      const filterType = document.getElementById('public-filter-type').value;
+      const visibleTypes = filterType === 'ALL' ? ['Masuk', 'Keluar'] : [filterType];
+
+      const selectedKey = filterMonth || '30DAYS';
+      visibleTypes.forEach(type => renderArchiveSection(
+        type === 'Masuk' ? 'public-table-body-masuk' : 'public-table-body-keluar',
+        type,
+        data.filter(item => {
+          const matchesMonth = selectedKey === 'ALL' || selectedKey === '30DAYS' || (item.tglSurat && monthKeyFromDate(item.tglSurat) === selectedKey);
+          const matchesWindow = selectedKey !== '30DAYS' || isInLast30Days(item.tglSurat);
+          return matchesMonth && matchesWindow;
+        }),
+        selectedKey
+      ));
+
+      if (filterType !== 'ALL') {
+        document.getElementById('public-table-body-masuk').parentElement.parentElement.style.display = filterType === 'Masuk' ? 'block' : 'none';
+        document.getElementById('public-table-body-keluar').parentElement.parentElement.style.display = filterType === 'Keluar' ? 'block' : 'none';
+      } else {
+        document.getElementById('public-table-body-masuk').parentElement.parentElement.style.display = 'block';
+        document.getElementById('public-table-body-keluar').parentElement.parentElement.style.display = 'block';
+      }
+
+      const masukCount = data.filter(item => item.tipe === 'Masuk' && (selectedKey === 'ALL' || selectedKey === '30DAYS' ? isInLast30Days(item.tglSurat) : (item.tglSurat && monthKeyFromDate(item.tglSurat) === selectedKey))).length;
+      const keluarCount = data.filter(item => item.tipe === 'Keluar' && (selectedKey === 'ALL' || selectedKey === '30DAYS' ? isInLast30Days(item.tglSurat) : (item.tglSurat && monthKeyFromDate(item.tglSurat) === selectedKey))).length;
+      document.getElementById('public-count-masuk').textContent = masukCount;
+      document.getElementById('public-count-keluar').textContent = keluarCount;
+    }
+
+    function renderAdminTables() {
+      const data = getCurrentData();
+      const filterType = document.getElementById('admin-filter-type').value;
+
+      const types = filterType === 'ALL' ? ['Masuk', 'Keluar'] : [filterType];
+      types.forEach(type => {
+        const containerId = type === 'Masuk' ? 'admin-table-body-masuk' : 'admin-table-body-keluar';
+        const filtered = data.filter(item => item.tipe === type).sort((a, b) => new Date(b.tglSurat) - new Date(a.tglSurat));
+        const monthGroups = {};
+
+        filtered.forEach(item => {
+          const key = monthKeyFromDate(item.tglSurat);
+          if (!key) return;
+          if (!monthGroups[key]) monthGroups[key] = [];
+          monthGroups[key].push(item);
+        });
+
+        const entries = Object.entries(monthGroups).sort((a, b) => b[0].localeCompare(a[0]));
+
+        const html = entries.length ? entries.map(([monthKey, items]) => `
+          <div class="rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 text-[10px] font-bold uppercase tracking-wide text-slate-600">
+              ${monthNameFromDate(`${monthKey}-01`)}
+            </div>
+            <div class="divide-y divide-slate-200">
+              ${items.map(item => `
+                <div class="p-2.5">
+                  <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <div class="min-w-0">
+                      <div class="text-[10px] text-slate-500">${item.tglSurat || '-'}</div>
+                      <div class="text-[11px] font-bold text-brand-primary truncate">${item.noSurat || '-'}</div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button onclick="openReceiptModal('${item.id}')" title="Cetak Tanda Terima" class="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100">
+                        <i class="fa-solid fa-print"></i>
+                      </button>
+                      <button onclick="deleteSurat('${item.id}')" title="Hapus Data" class="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="text-[10px] text-slate-600">${type === 'Masuk' ? 'Pengirim' : 'Tujuan'}: ${item.pengirim || '-'}</div>
+                  <div class="text-[10px] text-slate-600 mt-1">Perihal: ${item.perihal || '-'}</div>
+                  <div class="mt-2 flex items-center justify-between gap-2">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${type === 'Masuk' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.klasifikasi || 'Biasa'}</span>
+                    <span class="text-[10px] font-semibold text-slate-500">${item.agenda || '-'}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('') : `
+          <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center text-xs text-slate-500">
+            Tidak ada data ${type.toLowerCase()}.
+          </div>
+        `;
+
+        document.getElementById(containerId).innerHTML = html;
+      });
+
+      const masukParent = document.getElementById('admin-table-body-masuk').closest('.rounded-2xl');
+      const keluarParent = document.getElementById('admin-table-body-keluar').closest('.rounded-2xl');
+      if (filterType === 'ALL') {
+        masukParent.style.display = 'block';
+        keluarParent.style.display = 'block';
+      } else if (filterType === 'Masuk') {
+        masukParent.style.display = 'block';
+        keluarParent.style.display = 'none';
+      } else {
+        masukParent.style.display = 'none';
+        keluarParent.style.display = 'block';
+      }
+
+      document.getElementById('admin-count-masuk').textContent = data.filter(item => item.tipe === 'Masuk').length;
+      document.getElementById('admin-count-keluar').textContent = data.filter(item => item.tipe === 'Keluar').length;
+    }
+
+    function saveSuratMasuk(e) {
+      e.preventDefault();
+      const payload = {
+        id: String(Date.now()),
+        tipe: 'Masuk',
+        agenda: document.getElementById('sm-agenda').value,
+        noSurat: document.getElementById('sm-nosurat').value,
+        tglSurat: document.getElementById('sm-tglsurat').value,
+        pengirim: document.getElementById('sm-pengirim').value,
+        perihal: document.getElementById('sm-perihal').value,
+        klasifikasi: document.getElementById('sm-klasifikasi').value,
+        fileUrl: '#'
+      };
+
+      const saveHandler = (result) => {
+        if (result && result.ok) {
+          alert('Surat Masuk Berhasil Disimpan!');
+          e.target.reset();
+          loadAppData();
+          showAdminSection('dashboard');
+          return;
+        }
+        alert('Gagal menyimpan surat masuk.');
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(saveHandler).withFailureHandler(() => alert('Gagal menyimpan surat masuk.')).saveSurat(payload);
+        return;
+      }
+
+      appData.unshift(payload);
+      alert('Surat Masuk Berhasil Disimpan!');
+      e.target.reset();
+      renderAdminTables();
+      renderPublicMonthArchive();
+      showAdminSection('dashboard');
+    }
+
+    function saveSuratKeluar(e) {
+      e.preventDefault();
+      const payload = {
+        id: String(Date.now()),
+        tipe: 'Keluar',
+        agenda: '-',
+        noSurat: document.getElementById('sk-nosurat').value,
+        tglSurat: document.getElementById('sk-tglsurat').value,
+        pengirim: document.getElementById('sk-tujuan').value,
+        perihal: document.getElementById('sk-perihal').value,
+        klasifikasi: document.getElementById('sk-klasifikasi').value,
+        fileUrl: '#'
+      };
+
+      const saveHandler = (result) => {
+        if (result && result.ok) {
+          alert('Surat Keluar Berhasil Disimpan!');
+          e.target.reset();
+          loadAppData();
+          showAdminSection('dashboard');
+          return;
+        }
+        alert('Gagal menyimpan surat keluar.');
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(saveHandler).withFailureHandler(() => alert('Gagal menyimpan surat keluar.')).saveSurat(payload);
+        return;
+      }
+
+      appData.unshift(payload);
+      alert('Surat Keluar Berhasil Disimpan!');
+      e.target.reset();
+      renderAdminTables();
+      renderPublicMonthArchive();
+      showAdminSection('dashboard');
+    }
+
+    function deleteSurat(id) {
+      if (!confirm('Apakah Anda yakin ingin menghapus catatan surat ini?')) return;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(() => {
+          loadAppData();
+        }).deleteSurat(id);
+        return;
+      }
+
+      appData = appData.filter(item => String(item.id) !== String(id));
+      renderAdminTables();
+      renderPublicMonthArchive();
+    }
+
+    function purgeDummyData() {
+      if (!confirm('Bersihkan semua data dummy dari sampel aplikasi?')) return;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(() => {
+          loadAppData();
+        }).purgeDummyData();
+        return;
+      }
+
+      appData = [];
+      renderAdminTables();
+      renderPublicMonthArchive();
+    }
+
+    function saveSettings(event) {
+      event.preventDefault();
+      const settings = {
+        headerTitle: document.getElementById('set-header-title').value,
+        headerSubtitle: document.getElementById('set-header-sub').value,
+        heroBadge: document.getElementById('set-hero-badge').value,
+        heroTitlePrimary: document.getElementById('set-hero-title-primary').value,
+        heroTitleHighlight: document.getElementById('set-hero-title-highlight').value,
+        heroSubtitle: document.getElementById('set-hero-subtitle').value,
+        heroBackground: document.getElementById('set-hero-background').value,
+        masterPengirim: document.getElementById('set-master-pengirim').value
+      };
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler((result) => {
+          const payload = result && result.settings ? result.settings : settings;
+          appSettings = { ...appSettings, ...payload };
+          applySettingsToUI();
+          updateDatalistOptions();
+          alert('Pengaturan aplikasi berhasil disimpan.');
+        }).saveSettings(settings);
+        return;
+      }
+
+      appSettings = { ...appSettings, ...settings };
+      applySettingsToUI();
+      updateDatalistOptions();
+      alert('Pengaturan aplikasi berhasil disimpan.');
+    }
+
+    function openReceiptModal(id) {
+      const item = getCurrentData().find(x => String(x.id) === String(id)) || getCurrentData()[0];
+      if (!item) return;
+
+      const htmlDetails = `
+        <div><span class="text-slate-400">Nomor Surat:</span> <strong class="block">${item.noSurat}</strong></div>
+        <div><span class="text-slate-400">Pengirim/Tujuan:</span> <strong class="block">${item.pengirim}</strong></div>
+        <div><span class="text-slate-400">Tanggal Surat:</span> <strong class="block">${item.tglSurat}</strong></div>
+        <div><span class="text-slate-400">Perihal:</span> <strong class="block">${item.perihal}</strong></div>
+      `;
+
+      document.getElementById('receipt-details-1').innerHTML = htmlDetails;
+      document.getElementById('receipt-details-2').innerHTML = htmlDetails;
+
+      document.getElementById('qrcode-1').innerHTML = '';
+      document.getElementById('qrcode-2').innerHTML = '';
+      new QRCode(document.getElementById('qrcode-1'), { text: item.noSurat, width: 50, height: 50 });
+      new QRCode(document.getElementById('qrcode-2'), { text: item.noSurat, width: 50, height: 50 });
+
+      document.getElementById('receiptModal').classList.remove('hidden');
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receiptModal').classList.add('hidden');
+    }
+
+    function executePublicSearch() {
+      const q = document.getElementById('public-search-input').value.toLowerCase();
+      const data = getCurrentData();
+
+      if (!q) {
+        renderPublicMonthArchive();
+        return;
+      }
+
+      const filtered = data.filter(item =>
+        (item.noSurat || '').toLowerCase().includes(q) ||
+        (item.pengirim || '').toLowerCase().includes(q) ||
+        (item.perihal || '').toLowerCase().includes(q)
+      );
+
+      ['Masuk', 'Keluar'].forEach(type => renderArchiveSection(
+        type === 'Masuk' ? 'public-table-body-masuk' : 'public-table-body-keluar',
+        type,
+        filtered,
+        document.getElementById('public-filter-month').value
+      ));
+
+      document.getElementById('public-table-body-masuk').parentElement.parentElement.style.display = 'block';
+      document.getElementById('public-table-body-keluar').parentElement.parentElement.style.display = 'block';
+    }
+
+    function populateMonths() {
+      const select = document.getElementById('public-filter-month');
+      const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '30DAYS';
+      defaultOpt.textContent = '30 Hari Terakhir';
+      select.appendChild(defaultOpt);
+      months.forEach((m, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx + 1;
+        opt.textContent = m;
+        select.appendChild(opt);
+      });
+      select.value = '30DAYS';
+    }
+
+    function populateDatalists() {
+      updateDatalistOptions();
+    }
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
