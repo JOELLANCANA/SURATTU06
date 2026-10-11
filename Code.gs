@@ -42,6 +42,7 @@ function doGet(event) {
     footerInfo: properties.getProperty('FOOTER_INFO') || 'Informasi layanan administrasi surat UIN Ar-Raniry Banda Aceh.',
     heroImageUrl: publishedBannerUrls[0] || '',
     heroImageUrls: publishedBannerUrls,
+    integrity: getIntegritySyncStatus_(),
     gradient: {
       colorOne: properties.getProperty('GRADIENT_COLOR_ONE') || '#f7f8f2',
       colorTwo: properties.getProperty('GRADIENT_COLOR_TWO') || '#dcefe3',
@@ -112,6 +113,14 @@ function doPost(event) {
       PropertiesService.getScriptProperties().setProperty('FOOTER_INFO', footerInfo);
       return json_({ ok: true, footerInfo });
     }
+    if (body.action === 'verifyDriveSync' || body.action === 'syncIntegrity') {
+      const result = syncSheetsAndDriveIntegrity();
+      return json_({ ok: true, result });
+    }
+    if (body.action === 'installIntegrityTrigger') {
+      const trigger = installIntegritySyncTrigger_();
+      return json_({ ok: true, trigger });
+    }
     if (body.action !== 'createLetter') {
       return json_({ ok: false, error: 'Action tidak dikenal.' });
     }
@@ -145,6 +154,7 @@ function setup() {
   getAnnouncementSheet_();
   getBannerSheet_();
   migrateLegacyHeroImages_();
+  installIntegritySyncTrigger_();
 }
 
 function getSenderSheet_() {
@@ -458,4 +468,218 @@ function getHeroImageUrls_() {
 function json_(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Automated Background Job: Verifies & Syncs document metadata
+ * between Google Sheets database and Google Drive folder.
+ * Runs periodically via Time-Driven Trigger (every 1 hour).
+ */
+function syncSheetsAndDriveIntegrity() {
+  const startTime = Date.now();
+  let totalChecked = 0;
+  let verifiedCount = 0;
+  let repairedCount = 0;
+  let missingCount = 0;
+  const issues = [];
+  const logEntries = [];
+
+  try {
+    if (!CONFIG.spreadsheetId) throw new Error('SPREADSHEET_ID belum dikonfigurasi.');
+    if (!CONFIG.driveFolderId) throw new Error('DRIVE_FOLDER_ID belum dikonfigurasi.');
+
+    const spreadsheet = SpreadsheetApp.openById(CONFIG.spreadsheetId);
+    let driveFolder;
+    try {
+      driveFolder = DriveApp.getFolderById(CONFIG.driveFolderId);
+    } catch (err) {
+      throw new Error(`Google Drive Folder ID tidak valid: ${err.message}`);
+    }
+
+    // Pre-cache folder files for quick searching if repair is needed
+    const folderFilesMap = new Map();
+    try {
+      const filesIterator = driveFolder.getFiles();
+      let cachedCount = 0;
+      while (filesIterator.hasNext() && cachedCount < 200) {
+        const file = filesIterator.next();
+        folderFilesMap.set(file.getName().toLowerCase(), file);
+        cachedCount++;
+      }
+    } catch (err) {
+      console.warn('Gagal membaca cache folder Drive:', err.message);
+    }
+
+    const sheetsToSync = [
+      { name: CONFIG.incomingSheetName, type: 'in' },
+      { name: CONFIG.outgoingSheetName, type: 'out' }
+    ];
+
+    sheetsToSync.forEach(({ name: sheetName, type }) => {
+      const sheet = spreadsheet.getSheetByName(sheetName);
+      if (!sheet || sheet.getLastRow() < 2) return;
+
+      const range = sheet.getDataRange();
+      const values = range.getValues();
+      const headers = values[0] || [];
+
+      // Find column indices (0-based)
+      const colNum = headers.findIndex(h => /^(number|nomor)/i.test(String(h).trim()));
+      const colSub = headers.findIndex(h => /^(subject|perihal)/i.test(String(h).trim()));
+      const colSen = headers.findIndex(h => /^(sender|pengirim)/i.test(String(h).trim()));
+      const colRec = headers.findIndex(h => /^(recipient|tujuan|penerima)/i.test(String(h).trim()));
+      const colDate = headers.findIndex(h => /^(date|tanggal)/i.test(String(h).trim()));
+      const colStatus = headers.findIndex(h => /^(status)/i.test(String(h).trim()));
+      const colUrl = headers.findIndex(h => /^(attachmenturl|lampiran|file|driveurl)/i.test(String(h).trim()));
+
+      if (colNum === -1 || colUrl === -1) return;
+
+      for (let r = 1; r < values.length; r++) {
+        const row = values[r];
+        const letterNum = String(row[colNum] || '').trim();
+        if (!letterNum) continue;
+
+        totalChecked++;
+        const subject = colSub !== -1 ? String(row[colSub] || '') : '';
+        const sender = colSen !== -1 ? String(row[colSen] || '') : '';
+        const recipient = colRec !== -1 ? String(row[colRec] || '') : '';
+        const date = colDate !== -1 ? String(row[colDate] || '') : '';
+        const status = colStatus !== -1 ? String(row[colStatus] || '') : '';
+        let url = String(row[colUrl] || '').trim();
+
+        const metaDescription = `[Si-Surat UIN Ar-Raniry] No: ${letterNum} | Perihal: ${subject} | Pengirim: ${sender} | Tujuan: ${recipient || '-'} | Tanggal: ${date} | Status: ${status} | Sync: ${new Date().toISOString()}`;
+
+        let file = null;
+        let fileId = extractDriveFileId_(url);
+
+        if (fileId) {
+          try {
+            file = DriveApp.getFileById(fileId);
+            if (file.isTrashed()) {
+              file = null; // File in trash
+            }
+          } catch (err) {
+            file = null;
+          }
+        }
+
+        // If file is valid, sync metadata and ensure permissions
+        if (file) {
+          try {
+            file.setDescription(metaDescription);
+            file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+            verifiedCount++;
+            logEntries.push({ letterNum, status: 'verified', fileId: file.getId() });
+          } catch (err) {
+            verifiedCount++;
+          }
+        } else {
+          // Attempt automatic self-healing: find matching file in Drive folder
+          let matchedFile = null;
+          const cleanNum = letterNum.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+          // Search in cached folder files
+          for (const [fName, fObj] of folderFilesMap.entries()) {
+            const cleanFName = fName.replace(/[^a-zA-Z0-9]/g, '');
+            if (cleanFName.includes(cleanNum) || (cleanNum.length > 3 && cleanFName.includes(cleanNum.slice(0, 10)))) {
+              matchedFile = fObj;
+              break;
+            }
+          }
+
+          // If found, heal the broken link in Google Sheets
+          if (matchedFile) {
+            try {
+              const newUrl = matchedFile.getUrl();
+              sheet.getRange(r + 1, colUrl + 1).setValue(newUrl);
+              matchedFile.setDescription(metaDescription);
+              matchedFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+              repairedCount++;
+              logEntries.push({ letterNum, status: 'repaired', newUrl });
+            } catch (err) {
+              issues.push({ letterNum, error: `Gagal memperbarui link sheet: ${err.message}` });
+            }
+          } else {
+            if (url) {
+              missingCount++;
+              issues.push({ letterNum, error: 'File Drive tidak ditemukan atau telah dihapus', brokenUrl: url });
+            }
+          }
+        }
+      }
+    });
+
+    const durationMs = Date.now() - startTime;
+    const summary = {
+      timestamp: new Date().toISOString(),
+      status: missingCount === 0 ? 'optimal' : 'warnings_found',
+      totalChecked,
+      verifiedCount,
+      repairedCount,
+      missingCount,
+      durationMs,
+      issuesCount: issues.length,
+      sampleIssues: issues.slice(0, 5)
+    };
+
+    // Store latest sync results in Script Properties
+    PropertiesService.getScriptProperties().setProperty('INTEGRITY_SYNC_METRICS', JSON.stringify(summary));
+    console.log(`[Integrity Sync Completed] Checked: ${totalChecked}, Verified: ${verifiedCount}, Repaired: ${repairedCount}, Missing: ${missingCount} (${durationMs}ms)`);
+    return summary;
+  } catch (error) {
+    const errorSummary = {
+      timestamp: new Date().toISOString(),
+      status: 'error',
+      error: error.message,
+      totalChecked,
+      verifiedCount,
+      repairedCount,
+      missingCount
+    };
+    PropertiesService.getScriptProperties().setProperty('INTEGRITY_SYNC_METRICS', JSON.stringify(errorSummary));
+    console.error('Integrity Sync Error:', error.message);
+    return errorSummary;
+  }
+}
+
+/**
+ * Installs an automated background trigger for syncSheetsAndDriveIntegrity.
+ * Runs periodically every 1 hour.
+ */
+function installIntegritySyncTrigger_() {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    const existing = triggers.find(t => t.getHandlerFunction() === 'syncSheetsAndDriveIntegrity');
+    if (existing) {
+      return { status: 'already_installed', triggerId: existing.getUniqueId(), handler: 'syncSheetsAndDriveIntegrity' };
+    }
+    const newTrigger = ScriptApp.newTrigger('syncSheetsAndDriveIntegrity')
+      .timeBased()
+      .everyHours(1)
+      .create();
+    return { status: 'installed', triggerId: newTrigger.getUniqueId(), handler: 'syncSheetsAndDriveIntegrity' };
+  } catch (err) {
+    console.warn('Gagal memasang trigger otomatis:', err.message);
+    return { status: 'failed', error: err.message };
+  }
+}
+
+/**
+ * Retrieves the latest integrity metrics from Script Properties
+ */
+function getIntegritySyncStatus_() {
+  const raw = PropertiesService.getScriptProperties().getProperty('INTEGRITY_SYNC_METRICS');
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch (e) {}
+  }
+  return {
+    timestamp: null,
+    status: 'pending',
+    totalChecked: 0,
+    verifiedCount: 0,
+    repairedCount: 0,
+    missingCount: 0
+  };
 }

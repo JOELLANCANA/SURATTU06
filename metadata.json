@@ -1,0 +1,6 @@
+{
+  "name": "Si-Surat UIN Ar-Raniry",
+  "description": "Aplikasi manajemen surat menyurat dan digitalisasi arsip UIN Ar-Raniry Banda Aceh untuk administrasi yang tertib dan mudah dilacak.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
